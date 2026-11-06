@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+  <Include href="KnownImageIds.vsct" />
+
+  <Commands package="guidCopyBranchNamePackage">
+    <Buttons>
+      <!-- Primary placement: Git menu, in the group with New Branch / View Branch History / Manage Branches. -->
+      <Button guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" priority="0x0200" type="Button">
+        <Parent guid="guidGitMenuCmdSet" id="GitRootMenu_BranchGroup" />
+        <Icon guid="ImageCatalogGuid" id="Copy" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <Strings>
+          <ButtonText>Copy Branch Name</ButtonText>
+          <CanonicalName>.CopyBranchName.CopyBranchName</CanonicalName>
+          <LocCanonicalName>.CopyBranchName.CopyBranchName</LocCanonicalName>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <CommandPlacements>
+    <!-- Document tab context menu, next to Copy Full Path and Open Containing Folder. -->
+    <CommandPlacement guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" priority="0x0800">
+      <Parent guid="guidSHLMainMenu" id="IDG_VS_EZ_DOCWINDOWPATHOPS" />
+    </CommandPlacement>
+  </CommandPlacements>
+
+  <!-- Hidden unless Visual Studio's Git provider has an active repository. This applies before the package
+       loads; afterwards CopyBranchNameCommand.OnBeforeQueryStatus applies the same rule. -->
+  <VisibilityConstraints>
+    <VisibilityItem guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" context="UICONTEXT_RepositoryOpen" />
+  </VisibilityConstraints>
+
+  <!-- Ctrl+Shift+Alt+B is unbound in a default VS 2026 install; the Git chord Ctrl+0, Ctrl+B is taken by Team Explorer's Go To Builds. -->
+  <KeyBindings>
+    <KeyBinding guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" editor="guidVSStd97" key1="B" mod1="Control Shift Alt" />
+  </KeyBindings>
+
+  <Symbols>
+    <GuidSymbol name="guidCopyBranchNamePackage" value="{fd86fbd7-d932-4a69-812a-4b2084f3f754}" />
+
+    <GuidSymbol name="guidCopyBranchNameCmdSet" value="{1c83ad06-4056-49e5-b37e-da2b99968444}">
+      <IDSymbol name="cmdidCopyBranchName" value="0x0100" />
+    </GuidSymbol>
+
+    <!-- Git menu owned by Visual Studio's Git provider (Microsoft.TeamFoundation.Git.Provider). Same IDs in VS 2022 and VS 2026. -->
+    <GuidSymbol name="guidGitMenuCmdSet" value="{57735d06-c920-4415-a2e0-7d6e6fbdfa99}">
+      <IDSymbol name="GitRootMenu_BranchGroup" value="0xE006" />
+    </GuidSymbol>
+
+    <!-- VSConstants.UICONTEXT.RepositoryOpen_guid (vsshell142.h), active while the Git provider has an active repository. -->
+    <GuidSymbol name="UICONTEXT_RepositoryOpen" value="{d8cdd15a-d1f0-4ad5-b0f4-2de654546d5b}" />
+  </Symbols>
+</CommandTable>
