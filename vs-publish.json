@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json.schemastore.org/vsix-publish",
+  "categories": [ "source control" ],
+  "private": false,
+  "identity": {
+    "internalName": "CopyBranchName",
+    "tags": [ "git", "branch", "clipboard", "copy" ]
+  },
+  "assetFiles": [
+    {
+      "pathOnDisk": "art/git-menu.png",
+      "targetPath": "art/git-menu.png"
+    },
+    {
+      "pathOnDisk": "art/branch-context-menu.png",
+      "targetPath": "art/branch-context-menu.png"
+    }
+  ],
+  "overview": "README.md",
+  "publisher": "aberus",
+  "repo": "https://github.com/aberus/CopyBranchName"
+}

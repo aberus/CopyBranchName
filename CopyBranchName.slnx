@@ -1,0 +1,9 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+  </Configurations>
+  <Project Path="src/CopyBranchName.csproj" Id="6e0b5c1a-3d2f-4b8e-9a71-2c4d8f0e5b93">
+    <Deploy Solution="Debug|Any CPU" />
+  </Project>
+  <Project Path="test/CopyBranchName.Test/CopyBranchName.Test.csproj" Id="b3c1f0d2-7a4e-4f6b-8d21-5e9a0c3b7f14" />
+</Solution>

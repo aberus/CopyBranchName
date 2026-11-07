@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using Xunit;
 
-namespace CopyBranchName.Tests
+namespace CopyBranchName.Test
 {
     public sealed class GitHeadReaderTests : IDisposable
     {

@@ -4,6 +4,9 @@
     <Identity Id="CopyBranchName.e3e0fab3-e833-45fe-9226-7cad2427e5a5" Version="1.0.0" Language="en-US" Publisher="Aleksander Berus" />
     <DisplayName>Copy Branch Name</DisplayName>
     <Description xml:space="preserve">Copy the current Git branch name to the clipboard from the Git menu, the right-click Git submenu, document tabs or Ctrl+Shift+Alt+B. Right-click any branch in the Git Repository window or branch picker to copy that one.</Description>
+    <License>Resources\LICENSE.txt</License>
+    <Icon>Resources\Icon.png</Icon>
+    <PreviewImage>Resources\Icon.png</PreviewImage>
     <Tags>git; branch; clipboard; copy</Tags>
   </Metadata>
   <Installation>

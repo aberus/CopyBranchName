@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <!-- GitHeadReader only uses the BCL, so it is compiled straight into the tests instead of loading the VS package. -->
-    <Compile Include="..\..\src\CopyBranchName\GitHeadReader.cs" Link="GitHeadReader.cs" />
+    <Compile Include="..\..\src\Helpers\GitHeadReader.cs" Link="GitHeadReader.cs" />
   </ItemGroup>
 
   <ItemGroup>
