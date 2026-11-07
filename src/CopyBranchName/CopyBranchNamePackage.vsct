@@ -27,6 +27,15 @@
     <CommandPlacement guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" priority="0x0800">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_EZ_DOCWINDOWPATHOPS" />
     </CommandPlacement>
+    <!-- The Git provider's "Git" submenu, after Copy GitHub Permalink. Visual Studio shows that submenu in the
+         code editor context menu, in Solution Explorer (items, projects, solution) and on document tabs. -->
+    <CommandPlacement guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" priority="0x0200">
+      <Parent guid="guidGitMenuCmdSet" id="GitEditor_Context_SixthGroup" />
+    </CommandPlacement>
+    <!-- Git Changes window "..." menu, after New Branch / Manage Branches. -->
+    <CommandPlacement guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" priority="0x0300">
+      <Parent guid="guidGitMenuCmdSet" id="GitChanges_AdditionalOperations_BranchGroup" />
+    </CommandPlacement>
   </CommandPlacements>
 
   <!-- Hidden unless Visual Studio's Git provider has an active repository. This applies before the package
@@ -50,6 +59,10 @@
     <!-- Git menu owned by Visual Studio's Git provider (Microsoft.TeamFoundation.Git.Provider). Same IDs in VS 2022 and VS 2026. -->
     <GuidSymbol name="guidGitMenuCmdSet" value="{57735d06-c920-4415-a2e0-7d6e6fbdfa99}">
       <IDSymbol name="GitRootMenu_BranchGroup" value="0xE006" />
+      <!-- Group of the "Git" submenu (GitEditorContextMenu) that holds Copy GitHub Permalink. -->
+      <IDSymbol name="GitEditor_Context_SixthGroup" value="0xE075" />
+      <!-- Group of the Git Changes "..." menu that holds New Branch / Manage Branches. -->
+      <IDSymbol name="GitChanges_AdditionalOperations_BranchGroup" value="0xE02A" />
     </GuidSymbol>
 
     <!-- VSConstants.UICONTEXT.RepositoryOpen_guid (vsshell142.h), active while the Git provider has an active repository. -->

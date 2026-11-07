@@ -13,9 +13,9 @@ using Task = System.Threading.Tasks.Task;
 namespace CopyBranchName
 {
     /// <summary>
-    /// Copies the branch checked out in the repository of the active document, or of the open
-    /// solution/folder when the active document is not in a repository. The command is only shown
-    /// while Visual Studio's Git provider has an active repository.
+    /// Copies the branch checked out in the repository of, in order: the item selected in the active
+    /// tool window (Solution Explorer), the active document, or the open solution/folder. The command
+    /// is only shown while Visual Studio's Git provider has an active repository.
     /// </summary>
     internal sealed class CopyBranchNameCommand
     {
@@ -61,17 +61,18 @@ namespace CopyBranchName
         private async Task ExecuteAsync()
         {
             await _package.JoinableTaskFactory.SwitchToMainThreadAsync();
+            string selectedItemPath = await GetSelectedItemPathAsync();
             string documentPath = await GetActiveDocumentPathAsync();
             string solutionPath = await GetSolutionPathAsync();
 
             // Walking up the directory tree touches the file system, which may be a slow network share.
             await TaskScheduler.Default;
-            GitHead head = GitHeadReader.TryRead(documentPath) ?? GitHeadReader.TryRead(solutionPath);
+            GitHead head = GitHeadReader.TryRead(selectedItemPath) ?? GitHeadReader.TryRead(documentPath) ?? GitHeadReader.TryRead(solutionPath);
 
             await _package.JoinableTaskFactory.SwitchToMainThreadAsync();
             if (head == null)
             {
-                await SetStatusTextAsync("No Git repository found for the active document or the open solution.");
+                await SetStatusTextAsync("No Git repository found for the selected item, the active document or the open solution.");
                 return;
             }
 
@@ -111,6 +112,55 @@ namespace CopyBranchName
                 default:
                     await SetStatusTextAsync($"Could not determine the current Git branch of {repository}: unsupported repository format.");
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Path of the item selected in the active tool window (Solution Explorer), or null when a document
+        /// window is active. Right-clicking an item in Solution Explorer activates that window, and in a
+        /// multi-repository solution the item can belong to a different repository than the active document.
+        /// </summary>
+        private async Task<string> GetSelectedItemPathAsync()
+        {
+            await _package.JoinableTaskFactory.SwitchToMainThreadAsync();
+            if (!(await _package.GetServiceAsync(typeof(SVsShellMonitorSelection)) is IVsMonitorSelection monitorSelection) ||
+                ErrorHandler.Failed(monitorSelection.GetCurrentElementValue((uint)VSConstants.VSSELELEMID.SEID_WindowFrame, out object frame)) ||
+                !(frame is IVsWindowFrame activeFrame) ||
+                ErrorHandler.Failed(activeFrame.GetProperty((int)__VSFPROPID.VSFPROPID_Type, out object frameType)) ||
+                Convert.ToInt32(frameType) != (int)__WindowFrameTypeFlags.WINDOWFRAMETYPE_Tool)
+            {
+                return null;
+            }
+
+            IntPtr hierarchyPtr = IntPtr.Zero;
+            IntPtr containerPtr = IntPtr.Zero;
+            try
+            {
+                if (ErrorHandler.Failed(monitorSelection.GetCurrentSelection(out hierarchyPtr, out uint itemId, out _, out containerPtr)) ||
+                    hierarchyPtr == IntPtr.Zero ||
+                    itemId == VSConstants.VSITEMID_NIL ||
+                    itemId == VSConstants.VSITEMID_SELECTION)
+                {
+                    return null;
+                }
+
+                // For files, folders and projects this is the full path; the solution node yields the .sln path.
+                return Marshal.GetObjectForIUnknown(hierarchyPtr) is IVsHierarchy hierarchy &&
+                    ErrorHandler.Succeeded(hierarchy.GetCanonicalName(itemId, out string name))
+                    ? name
+                    : null;
+            }
+            finally
+            {
+                if (hierarchyPtr != IntPtr.Zero)
+                {
+                    Marshal.Release(hierarchyPtr);
+                }
+
+                if (containerPtr != IntPtr.Zero)
+                {
+                    Marshal.Release(containerPtr);
+                }
             }
         }
 

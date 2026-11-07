@@ -8,6 +8,8 @@ A Visual Studio 2022 / 2026 extension that copies the current Git branch name to
 |---|---|
 | **Git > Copy Branch Name** | Next to *New Branch…*, *View Branch History* and *Manage Branches* |
 | **Document tab context menu** | Right-click an editor tab, next to *Copy Full Path* / *Copy Relative Path* |
+| **Right-click > Git submenu** | In the code editor, in Solution Explorer (files, projects, solution) and on document tabs, next to *Copy GitHub Permalink* |
+| **Git Changes window "…" menu** | Next to *New Branch…* / *Manage Branches* |
 | **Keyboard shortcut** | **Ctrl+Shift+Alt+B** (global). Rebind it under *Tools > Options > Environment > Keyboard* by searching for `CopyBranchName.CopyBranchName`. |
 | **Command window** | `CopyBranchName.CopyBranchName` |
 
@@ -21,8 +23,9 @@ The command is **hidden (and disabled) unless Visual Studio has an active Git re
 
 ## Which repository is used
 
-1. The repository containing the **active document**, so multi-repo solutions and files from other repos copy the right branch.
-2. Otherwise, the repository containing the **open solution or folder**.
+1. When a tool window such as Solution Explorer is active, the repository containing the **selected item**. Right-clicking an item activates that window, so in a multi-repo or submodule solution the right-clicked project wins over the active document.
+2. Otherwise, the repository containing the **active document**.
+3. Otherwise, the repository containing the **open solution or folder**.
 
 Special cases:
 
