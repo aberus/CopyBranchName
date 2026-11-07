@@ -1,10 +1,18 @@
+using CopyBranchName;
+
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("CopyBranchName")]
-[assembly: AssemblyDescription("Copies the current Git branch name to the clipboard.")]
-[assembly: AssemblyProduct("CopyBranchName")]
-[assembly: AssemblyCopyright("")]
+[assembly: AssemblyTitle(Vsix.Name)]
+[assembly: AssemblyDescription(Vsix.Description)]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany(Vsix.Author)]
+[assembly: AssemblyProduct(Vsix.Name)]
+[assembly: AssemblyCopyright(Vsix.Author)]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+
 [assembly: ComVisible(false)]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+
+[assembly: AssemblyVersion(Vsix.Version)]
+[assembly: AssemblyFileVersion(Vsix.Version)]

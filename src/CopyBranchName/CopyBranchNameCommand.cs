@@ -19,13 +19,6 @@ namespace CopyBranchName
     /// </summary>
     internal sealed class CopyBranchNameCommand
     {
-        public const int CommandId = 0x0100;
-
-        /// <summary>Placed on the context menus of branch rows; copies the right-clicked branch.</summary>
-        public const int SelectedCommandId = 0x0101;
-
-        public static readonly Guid CommandSet = new Guid("1c83ad06-4056-49e5-b37e-da2b99968444");
-
         private readonly AsyncPackage _package;
 
         private readonly UIContext _repositoryOpen = UIContext.FromUIContextGuid(VSConstants.UICONTEXT.RepositoryOpen_guid);
@@ -51,11 +44,12 @@ namespace CopyBranchName
             if (await package.GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService commandService)
             {
                 var command = new CopyBranchNameCommand(package);
-                var menuCommand = new OleMenuCommand(command.Execute, new CommandID(CommandSet, CommandId));
+                var menuCommand = new OleMenuCommand(command.Execute, new CommandID(PackageGuids.CopyBranchNameCmdSet, PackageIds.CopyBranchNameCommand));
                 menuCommand.BeforeQueryStatus += command.OnBeforeQueryStatus;
                 commandService.AddCommand(menuCommand);
 
-                var selectedCommand = new OleMenuCommand(command.ExecuteSelected, new CommandID(CommandSet, SelectedCommandId));
+                // Placed on the context menus of branch rows; copies the right-clicked branch.
+                var selectedCommand = new OleMenuCommand(command.ExecuteSelected, new CommandID(PackageGuids.CopyBranchNameCmdSet, PackageIds.CopySelectedBranchNameCommand));
                 selectedCommand.BeforeQueryStatus += command.OnBeforeQueryStatusSelected;
                 commandService.AddCommand(selectedCommand);
             }

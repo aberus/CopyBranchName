@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
@@ -48,6 +48,16 @@
   <ItemGroup>
     <Compile Include="CopyBranchNameCommand.cs" />
     <Compile Include="CopyBranchNamePackage.cs" />
+    <Compile Include="source.extension.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>source.extension.vsixmanifest</DependentUpon>
+    </Compile>
+    <Compile Include="VSCommandTable.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>VSCommandTable.vsct</DependentUpon>
+    </Compile>
     <Compile Include="GitHeadReader.cs" />
     <Compile Include="SelectedBranchFinder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -58,7 +68,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <VSCTCompile Include="CopyBranchNamePackage.vsct">
+    <VSCTCompile Include="VSCommandTable.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
   </ItemGroup>

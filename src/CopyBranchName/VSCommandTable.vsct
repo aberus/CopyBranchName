@@ -4,11 +4,11 @@
   <Extern href="vsshlids.h" />
   <Include href="KnownImageIds.vsct" />
 
-  <Commands package="guidCopyBranchNamePackage">
+  <Commands package="CopyBranchName">
     <Buttons>
       <!-- Primary placement: Git menu, in the group with New Branch / View Branch History / Manage Branches. -->
-      <Button guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" priority="0x0200" type="Button">
-        <Parent guid="guidGitMenuCmdSet" id="GitRootMenu_BranchGroup" />
+      <Button guid="CopyBranchNameCmdSet" id="CopyBranchNameCommand" priority="0x0200" type="Button">
+        <Parent guid="GitPackageCmdSet" id="GitRootMenu_BranchGroup" />
         <Icon guid="ImageCatalogGuid" id="Copy" />
         <CommandFlag>IconIsMoniker</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
@@ -21,9 +21,9 @@
       </Button>
 
       <!-- Context menus of branch rows: copies the right-clicked branch rather than the current one. Shown only
-           when CopyBranchNameCommand can read the row (DontCache: that depends on what has keyboard focus). -->
-      <Button guid="guidCopyBranchNameCmdSet" id="cmdidCopySelectedBranchName" priority="0x0400" type="Button">
-        <Parent guid="guidGitMenuCmdSet" id="GitRepositoryWindow_BranchContextMenu_FirstGroup" />
+           when the row can be read (DontCache: that depends on what is under the mouse). -->
+      <Button guid="CopyBranchNameCmdSet" id="CopySelectedBranchNameCommand" priority="0x0400" type="Button">
+        <Parent guid="GitPackageCmdSet" id="GitRepositoryWindow_BranchContextMenu_FirstGroup" />
         <Icon guid="ImageCatalogGuid" id="Copy" />
         <CommandFlag>IconIsMoniker</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
@@ -40,55 +40,55 @@
 
   <CommandPlacements>
     <!-- Document tab context menu, next to Copy Full Path and Open Containing Folder. -->
-    <CommandPlacement guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" priority="0x0800">
+    <CommandPlacement guid="CopyBranchNameCmdSet" id="CopyBranchNameCommand" priority="0x0800">
       <Parent guid="guidSHLMainMenu" id="IDG_VS_EZ_DOCWINDOWPATHOPS" />
     </CommandPlacement>
     <!-- The Git provider's "Git" submenu, after Copy GitHub Permalink. Visual Studio shows that submenu in the
          code editor context menu, in Solution Explorer (items, projects, solution) and on document tabs. -->
-    <CommandPlacement guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" priority="0x0200">
-      <Parent guid="guidGitMenuCmdSet" id="GitEditor_Context_SixthGroup" />
+    <CommandPlacement guid="CopyBranchNameCmdSet" id="CopyBranchNameCommand" priority="0x0200">
+      <Parent guid="GitPackageCmdSet" id="GitEditor_Context_SixthGroup" />
     </CommandPlacement>
     <!-- Git Changes window "..." menu, after New Branch / Manage Branches. -->
-    <CommandPlacement guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" priority="0x0300">
-      <Parent guid="guidGitMenuCmdSet" id="GitChanges_AdditionalOperations_BranchGroup" />
+    <CommandPlacement guid="CopyBranchNameCmdSet" id="CopyBranchNameCommand" priority="0x0300">
+      <Parent guid="GitPackageCmdSet" id="GitChanges_AdditionalOperations_BranchGroup" />
     </CommandPlacement>
 
     <!-- Branch rows. The Git Repository window uses a second menu for rows it cannot pair with the current
          branch (for example while HEAD is detached); the branch picker has a separate menu for the
          "common branches" rows of multi-repository solutions. -->
-    <CommandPlacement guid="guidCopyBranchNameCmdSet" id="cmdidCopySelectedBranchName" priority="0x0200">
-      <Parent guid="guidGitMenuCmdSet" id="GitBranches_BranchContextMenu_FirstGroup" />
+    <CommandPlacement guid="CopyBranchNameCmdSet" id="CopySelectedBranchNameCommand" priority="0x0200">
+      <Parent guid="GitPackageCmdSet" id="GitBranches_BranchContextMenu_FirstGroup" />
     </CommandPlacement>
-    <CommandPlacement guid="guidCopyBranchNameCmdSet" id="cmdidCopySelectedBranchName" priority="0x0200">
-      <Parent guid="guidGitMenuCmdSet" id="GitRefPicker_BranchContextMenu_FirstGroup" />
+    <CommandPlacement guid="CopyBranchNameCmdSet" id="CopySelectedBranchNameCommand" priority="0x0200">
+      <Parent guid="GitPackageCmdSet" id="GitRefPicker_BranchContextMenu_FirstGroup" />
     </CommandPlacement>
-    <CommandPlacement guid="guidCopyBranchNameCmdSet" id="cmdidCopySelectedBranchName" priority="0x0200">
-      <Parent guid="guidGitMenuCmdSet" id="GitRefPicker_CommonBranchContextMenu_FirstGroup" />
+    <CommandPlacement guid="CopyBranchNameCmdSet" id="CopySelectedBranchNameCommand" priority="0x0200">
+      <Parent guid="GitPackageCmdSet" id="GitRefPicker_CommonBranchContextMenu_FirstGroup" />
     </CommandPlacement>
   </CommandPlacements>
 
   <!-- Hidden unless Visual Studio's Git provider has an active repository. This applies before the package
-       loads; afterwards CopyBranchNameCommand.OnBeforeQueryStatus applies the same rule. -->
+       loads; afterwards the BeforeQueryStatus handlers in CopyBranchNameCommand.cs apply the same rule. -->
   <VisibilityConstraints>
-    <VisibilityItem guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" context="UICONTEXT_RepositoryOpen" />
-    <VisibilityItem guid="guidCopyBranchNameCmdSet" id="cmdidCopySelectedBranchName" context="UICONTEXT_RepositoryOpen" />
+    <VisibilityItem guid="CopyBranchNameCmdSet" id="CopyBranchNameCommand" context="UICONTEXT_RepositoryOpen" />
+    <VisibilityItem guid="CopyBranchNameCmdSet" id="CopySelectedBranchNameCommand" context="UICONTEXT_RepositoryOpen" />
   </VisibilityConstraints>
 
   <!-- Ctrl+Shift+Alt+B is unbound in a default VS 2026 install; the Git chord Ctrl+0, Ctrl+B is taken by Team Explorer's Go To Builds. -->
   <KeyBindings>
-    <KeyBinding guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" editor="guidVSStd97" key1="B" mod1="Control Shift Alt" />
+    <KeyBinding guid="CopyBranchNameCmdSet" id="CopyBranchNameCommand" editor="guidVSStd97" key1="B" mod1="Control Shift Alt" />
   </KeyBindings>
 
   <Symbols>
-    <GuidSymbol name="guidCopyBranchNamePackage" value="{fd86fbd7-d932-4a69-812a-4b2084f3f754}" />
+    <GuidSymbol name="CopyBranchName" value="{fd86fbd7-d932-4a69-812a-4b2084f3f754}" />
 
-    <GuidSymbol name="guidCopyBranchNameCmdSet" value="{1c83ad06-4056-49e5-b37e-da2b99968444}">
-      <IDSymbol name="cmdidCopyBranchName" value="0x0100" />
-      <IDSymbol name="cmdidCopySelectedBranchName" value="0x0101" />
+    <GuidSymbol name="CopyBranchNameCmdSet" value="{1c83ad06-4056-49e5-b37e-da2b99968444}">
+      <IDSymbol name="CopyBranchNameCommand" value="0x0100" />
+      <IDSymbol name="CopySelectedBranchNameCommand" value="0x0101" />
     </GuidSymbol>
 
     <!-- Git menu owned by Visual Studio's Git provider (Microsoft.TeamFoundation.Git.Provider). Same IDs in VS 2022 and VS 2026. -->
-    <GuidSymbol name="guidGitMenuCmdSet" value="{57735d06-c920-4415-a2e0-7d6e6fbdfa99}">
+    <GuidSymbol name="GitPackageCmdSet" value="{57735d06-c920-4415-a2e0-7d6e6fbdfa99}">
       <IDSymbol name="GitRootMenu_BranchGroup" value="0xE006" />
       <!-- Group of the "Git" submenu (GitEditorContextMenu) that holds Copy GitHub Permalink. -->
       <IDSymbol name="GitEditor_Context_SixthGroup" value="0xE075" />
