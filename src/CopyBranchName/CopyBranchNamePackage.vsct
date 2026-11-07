@@ -19,6 +19,22 @@
           <LocCanonicalName>.CopyBranchName.CopyBranchName</LocCanonicalName>
         </Strings>
       </Button>
+
+      <!-- Context menus of branch rows: copies the right-clicked branch rather than the current one. Shown only
+           when CopyBranchNameCommand can read the row (DontCache: that depends on what has keyboard focus). -->
+      <Button guid="guidCopyBranchNameCmdSet" id="cmdidCopySelectedBranchName" priority="0x0400" type="Button">
+        <Parent guid="guidGitMenuCmdSet" id="GitRepositoryWindow_BranchContextMenu_FirstGroup" />
+        <Icon guid="ImageCatalogGuid" id="Copy" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DontCache</CommandFlag>
+        <Strings>
+          <ButtonText>Copy Branch Name</ButtonText>
+          <CanonicalName>.CopyBranchName.CopySelectedBranchName</CanonicalName>
+          <LocCanonicalName>.CopyBranchName.CopySelectedBranchName</LocCanonicalName>
+        </Strings>
+      </Button>
     </Buttons>
   </Commands>
 
@@ -36,12 +52,26 @@
     <CommandPlacement guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" priority="0x0300">
       <Parent guid="guidGitMenuCmdSet" id="GitChanges_AdditionalOperations_BranchGroup" />
     </CommandPlacement>
+
+    <!-- Branch rows. The Git Repository window uses a second menu for rows it cannot pair with the current
+         branch (for example while HEAD is detached); the branch picker has a separate menu for the
+         "common branches" rows of multi-repository solutions. -->
+    <CommandPlacement guid="guidCopyBranchNameCmdSet" id="cmdidCopySelectedBranchName" priority="0x0200">
+      <Parent guid="guidGitMenuCmdSet" id="GitBranches_BranchContextMenu_FirstGroup" />
+    </CommandPlacement>
+    <CommandPlacement guid="guidCopyBranchNameCmdSet" id="cmdidCopySelectedBranchName" priority="0x0200">
+      <Parent guid="guidGitMenuCmdSet" id="GitRefPicker_BranchContextMenu_FirstGroup" />
+    </CommandPlacement>
+    <CommandPlacement guid="guidCopyBranchNameCmdSet" id="cmdidCopySelectedBranchName" priority="0x0200">
+      <Parent guid="guidGitMenuCmdSet" id="GitRefPicker_CommonBranchContextMenu_FirstGroup" />
+    </CommandPlacement>
   </CommandPlacements>
 
   <!-- Hidden unless Visual Studio's Git provider has an active repository. This applies before the package
        loads; afterwards CopyBranchNameCommand.OnBeforeQueryStatus applies the same rule. -->
   <VisibilityConstraints>
     <VisibilityItem guid="guidCopyBranchNameCmdSet" id="cmdidCopyBranchName" context="UICONTEXT_RepositoryOpen" />
+    <VisibilityItem guid="guidCopyBranchNameCmdSet" id="cmdidCopySelectedBranchName" context="UICONTEXT_RepositoryOpen" />
   </VisibilityConstraints>
 
   <!-- Ctrl+Shift+Alt+B is unbound in a default VS 2026 install; the Git chord Ctrl+0, Ctrl+B is taken by Team Explorer's Go To Builds. -->
@@ -54,6 +84,7 @@
 
     <GuidSymbol name="guidCopyBranchNameCmdSet" value="{1c83ad06-4056-49e5-b37e-da2b99968444}">
       <IDSymbol name="cmdidCopyBranchName" value="0x0100" />
+      <IDSymbol name="cmdidCopySelectedBranchName" value="0x0101" />
     </GuidSymbol>
 
     <!-- Git menu owned by Visual Studio's Git provider (Microsoft.TeamFoundation.Git.Provider). Same IDs in VS 2022 and VS 2026. -->
@@ -63,6 +94,14 @@
       <IDSymbol name="GitEditor_Context_SixthGroup" value="0xE075" />
       <!-- Group of the Git Changes "..." menu that holds New Branch / Manage Branches. -->
       <IDSymbol name="GitChanges_AdditionalOperations_BranchGroup" value="0xE02A" />
+      <!-- First groups (Checkout ...) of the branch-row context menus: Git Repository window
+           (GitRepositoryWindow_ActiveRepositoriesSection_BranchContextMenu and its fallback
+           GitBranches_ActiveRepositoriesSection_ContextMenu) and the branch picker (GitRefPicker_Branch_ContextMenu,
+           GitRefPicker_CommonBranch_ContextMenu). -->
+      <IDSymbol name="GitRepositoryWindow_BranchContextMenu_FirstGroup" value="0xE160" />
+      <IDSymbol name="GitBranches_BranchContextMenu_FirstGroup" value="0xE042" />
+      <IDSymbol name="GitRefPicker_BranchContextMenu_FirstGroup" value="0xE064" />
+      <IDSymbol name="GitRefPicker_CommonBranchContextMenu_FirstGroup" value="0xE06A" />
     </GuidSymbol>
 
     <!-- VSConstants.UICONTEXT.RepositoryOpen_guid (vsshell142.h), active while the Git provider has an active repository. -->

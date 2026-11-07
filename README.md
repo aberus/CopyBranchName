@@ -10,6 +10,7 @@ A Visual Studio 2022 / 2026 extension that copies the current Git branch name to
 | **Document tab context menu** | Right-click an editor tab, next to *Copy Full Path* / *Copy Relative Path* |
 | **Right-click > Git submenu** | In the code editor, in Solution Explorer (files, projects, solution) and on document tabs, next to *Copy GitHub Permalink* |
 | **Git Changes window "…" menu** | Next to *New Branch…* / *Manage Branches* |
+| **Right-click a branch row** | In the Git Repository window's Branches pane and in the branch picker (status bar / Git Changes dropdown). Copies the **clicked** branch, not the current one; see below. |
 | **Keyboard shortcut** | **Ctrl+Shift+Alt+B** (global). Rebind it under *Tools > Options > Environment > Keyboard* by searching for `CopyBranchName.CopyBranchName`. |
 | **Command window** | `CopyBranchName.CopyBranchName` |
 
@@ -33,6 +34,14 @@ Special cases:
 - **Detached HEAD:** copies the full commit SHA, and the status bar says HEAD is detached.
 - **Linked worktrees and submodules:** supported. Their `.git` files point to the real Git directory.
 - **Reftable repositories:** reported as unsupported (`git init --ref-format=reftable`).
+
+## Copying a branch other than the current one
+
+Right-clicking a branch row offers a second command, `CopyBranchName.CopySelectedBranchName`, that copies the right-clicked branch (for remote branches as displayed, e.g. `origin/feature/x`). It is placed only on the branch-row context menus and has no default shortcut.
+
+Visual Studio hands the clicked branch only to its own context-menu handlers and never publishes it to the selection service, so the extension reads it from the list itself: the row under the mouse (or with keyboard focus, for menus opened with Shift+F10) while the menu is being built, through the row object's `GitRef.Name` (or `DisplayName` for the "common branches" rows of multi-repository solutions). Those are internal members of `Microsoft.TeamFoundation.Git.Controls`, identical in VS 2022 and VS 2026. If a Visual Studio update renames them, the entry simply disappears from the branch-row menus; nothing else is affected and the current-branch command never guesses.
+
+For the row to be captured, the extension loads in the background as soon as a repository becomes active (`ProvideAutoLoad` on the `RepositoryOpen` UI context).
 
 ## Design notes
 
@@ -62,4 +71,4 @@ The VSIX is written to `src\CopyBranchName\bin\Release\CopyBranchName.vsix`. Dou
 ## Limitations
 
 - Visibility follows Visual Studio's notion of an active repository. A loose file opened from a Git repo, with no repository active in VS, doesn't show the command.
-- Copies the **current** branch only. Copying an arbitrary branch from the Git Repository window's branch list isn't supported. That window keeps its selection in internal services that have no public API.
+- The branch-row entries depend on internal Visual Studio members (see above). The Git menu, shortcut, tab, Git submenu and Git Changes entries do not.

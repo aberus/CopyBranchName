@@ -21,11 +21,24 @@ namespace CopyBranchName
     {
         public const int CommandId = 0x0100;
 
+        /// <summary>Placed on the context menus of branch rows; copies the right-clicked branch.</summary>
+        public const int SelectedCommandId = 0x0101;
+
         public static readonly Guid CommandSet = new Guid("1c83ad06-4056-49e5-b37e-da2b99968444");
 
         private readonly AsyncPackage _package;
 
         private readonly UIContext _repositoryOpen = UIContext.FromUIContextGuid(VSConstants.UICONTEXT.RepositoryOpen_guid);
+
+        /// <summary>
+        /// Visual Studio re-queries visible commands on idle. While a branch-row menu is open, the mouse and the
+        /// keyboard focus are on the menu, so a row captured this recently is kept rather than hiding the entry.
+        /// </summary>
+        private static readonly TimeSpan CaptureLifetime = TimeSpan.FromSeconds(60);
+
+        private SelectedBranch _capturedBranch;
+
+        private DateTime _capturedAt;
 
         private CopyBranchNameCommand(AsyncPackage package)
         {
@@ -41,6 +54,10 @@ namespace CopyBranchName
                 var menuCommand = new OleMenuCommand(command.Execute, new CommandID(CommandSet, CommandId));
                 menuCommand.BeforeQueryStatus += command.OnBeforeQueryStatus;
                 commandService.AddCommand(menuCommand);
+
+                var selectedCommand = new OleMenuCommand(command.ExecuteSelected, new CommandID(CommandSet, SelectedCommandId));
+                selectedCommand.BeforeQueryStatus += command.OnBeforeQueryStatusSelected;
+                commandService.AddCommand(selectedCommand);
             }
         }
 
@@ -53,9 +70,69 @@ namespace CopyBranchName
             command.Visible = command.Enabled = _repositoryOpen.IsActive;
         }
 
+        private void OnBeforeQueryStatusSelected(object sender, EventArgs e)
+        {
+            // Visual Studio builds a context menu with the right-clicked row still under the mouse, so the row is
+            // captured here for the Execute that may follow. No row means the entry stays hidden.
+            ThreadHelper.ThrowIfNotOnUIThread();
+            SelectedBranch found = _repositoryOpen.IsActive ? SelectedBranchFinder.TryFind() : null;
+            if (found != null)
+            {
+                _capturedBranch = found;
+                _capturedAt = DateTime.UtcNow;
+            }
+            else if (DateTime.UtcNow - _capturedAt > CaptureLifetime)
+            {
+                _capturedBranch = null;
+            }
+
+            var command = (OleMenuCommand)sender;
+            command.Visible = command.Enabled = _capturedBranch != null;
+        }
+
         private void Execute(object sender, EventArgs e)
         {
             _package.JoinableTaskFactory.RunAsync(ExecuteAsync).FileAndForget("CopyBranchName/Execute");
+        }
+
+        private void ExecuteSelected(object sender, EventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            SelectedBranch captured = _capturedBranch;
+            _capturedBranch = null;
+            _package.JoinableTaskFactory.RunAsync(() => ExecuteSelectedAsync(captured)).FileAndForget("CopyBranchName/ExecuteSelected");
+        }
+
+        private async Task ExecuteSelectedAsync(SelectedBranch captured)
+        {
+            await _package.JoinableTaskFactory.SwitchToMainThreadAsync();
+            // The row seen while the menu was built is the one that was right-clicked. The lookups below only
+            // matter when this very command loaded the package, so nothing was captured.
+            SelectedBranch branch = captured ?? SelectedBranchFinder.TryFind();
+            if (branch == null)
+            {
+                await Task.Delay(250);
+                await _package.JoinableTaskFactory.SwitchToMainThreadAsync();
+                branch = SelectedBranchFinder.TryFind();
+            }
+
+            if (branch == null)
+            {
+                await SetStatusTextAsync("Could not determine the selected Git branch.");
+                return;
+            }
+
+            if (TrySetClipboardText(branch.Name, out string error))
+            {
+                string repository = RepositoryName(branch.RepositoryPath);
+                await SetStatusTextAsync(repository == null
+                    ? $"Copied Git branch name '{branch.Name}' to the clipboard."
+                    : $"Copied Git branch name '{branch.Name}' to the clipboard ({repository}).");
+            }
+            else
+            {
+                await SetStatusTextAsync(error);
+            }
         }
 
         private async Task ExecuteAsync()
@@ -76,12 +153,7 @@ namespace CopyBranchName
                 return;
             }
 
-            string repository = Path.GetFileName(head.WorkTreeRoot);
-            if (string.IsNullOrEmpty(repository))
-            {
-                repository = head.WorkTreeRoot;
-            }
-
+            string repository = RepositoryName(head.WorkTreeRoot);
             switch (head.Kind)
             {
                 case GitHeadKind.Branch:
@@ -190,6 +262,17 @@ namespace CopyBranchName
 
             // In Open Folder mode there is no solution file, only the folder.
             return string.IsNullOrEmpty(directory) ? file : directory;
+        }
+
+        private static string RepositoryName(string workTreeRoot)
+        {
+            if (string.IsNullOrEmpty(workTreeRoot))
+            {
+                return null;
+            }
+
+            string name = Path.GetFileName(workTreeRoot.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+            return string.IsNullOrEmpty(name) ? workTreeRoot : name;
         }
 
         private static bool TrySetClipboardText(string text, out string error)
