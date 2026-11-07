@@ -25,7 +25,8 @@ namespace CopyBranchName
 
         /// <summary>
         /// Visual Studio re-queries visible commands on idle. While a branch-row menu is open, the mouse and the
-        /// keyboard focus are on the menu, so a row captured this recently is kept rather than hiding the entry.
+        /// keyboard focus are on the menu rather than on a row, so a row captured this recently is kept instead of
+        /// hiding the entry. As soon as a Git list row is under the mouse or focused again, that row decides.
         /// </summary>
         private static readonly TimeSpan CaptureLifetime = TimeSpan.FromSeconds(60);
 
@@ -67,12 +68,16 @@ namespace CopyBranchName
         private void OnBeforeQueryStatusSelected(object sender, EventArgs e)
         {
             // Visual Studio builds a context menu with the right-clicked row still under the mouse, so the row is
-            // captured here for the Execute that may follow. No row means the entry stays hidden.
+            // captured here for the Execute that may follow. A row that is not a branch (a folder, the remotes
+            // group, a repository, a tag) hides the entry, also right after a branch row was right-clicked.
             ThreadHelper.ThrowIfNotOnUIThread();
-            SelectedBranch found = _repositoryOpen.IsActive ? SelectedBranchFinder.TryFind() : null;
-            if (found != null)
+            if (!_repositoryOpen.IsActive)
             {
-                _capturedBranch = found;
+                _capturedBranch = null;
+            }
+            else if (SelectedBranchFinder.TryFindRow(out SelectedBranch branch))
+            {
+                _capturedBranch = branch;
                 _capturedAt = DateTime.UtcNow;
             }
             else if (DateTime.UtcNow - _capturedAt > CaptureLifetime)

@@ -33,16 +33,31 @@ namespace CopyBranchName
     /// </summary>
     internal static class SelectedBranchFinder
     {
+        /// <summary>The branch of the Git list row under the mouse or with keyboard focus, or null.</summary>
         public static SelectedBranch TryFind()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            TryFindRow(out SelectedBranch branch);
+            return branch;
+        }
+
+        /// <summary>
+        /// Returns true when the mouse or keyboard focus is on a row of one of Visual Studio's Git lists. The row
+        /// then decides on its own: <paramref name="branch"/> is its branch, or null when the row is not a branch
+        /// (a folder, the remotes group, a repository or a tag).
+        /// </summary>
+        public static bool TryFindRow(out SelectedBranch branch)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             // A menu opened by right-click: the row is under the mouse. Opened from the keyboard (Shift+F10, Apps):
             // the row has keyboard focus. Focus alone is not enough: once a context menu has closed, Visual Studio
             // does not give focus back to the row, so the next right-click would find nothing.
-            return FromRow(FindRow(Mouse.DirectlyOver as DependencyObject)) ?? FromRow(FindRow(Keyboard.FocusedElement as DependencyObject));
+            object row = FindGitRow(Mouse.DirectlyOver as DependencyObject) ?? FindGitRow(Keyboard.FocusedElement as DependencyObject);
+            branch = FromRow(row);
+            return row != null;
         }
 
-        private static object FindRow(DependencyObject start)
+        private static object FindGitRow(DependencyObject start)
         {
             object rowFromItem = null;
             for (DependencyObject element = start; element != null; element = GetParent(element))
@@ -53,8 +68,14 @@ namespace CopyBranchName
                 }
                 else if (element is Selector selector)
                 {
-                    // Right-clicking a row selects it, so the selection is the clicked row.
-                    return selector.SelectedItem ?? rowFromItem;
+                    // Visual Studio's own menu acts on the selection, and right-clicking a row selects it.
+                    object row = selector.SelectedItem ?? rowFromItem;
+
+                    // Rows of the Git lists are view models from Microsoft.TeamFoundation.Git.Controls; a row of any
+                    // other list must not decide, so the caller can fall back to the keyboard focus.
+                    return row != null && (row.GetType().Namespace ?? string.Empty).StartsWith("Microsoft.TeamFoundation.Git", StringComparison.Ordinal)
+                        ? row
+                        : null;
                 }
             }
 
